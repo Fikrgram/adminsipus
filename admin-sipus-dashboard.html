@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ADMIN SIPUS (Survei Indeks Pelayanan Perpustakaan)</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- LOGIN -->
+<div id="loginSection" class="max-w-md mx-auto mt-20 bg-white p-6 rounded-lg shadow">
+  <div class="text-center mb-4">
+    <img src="Sipus.png" alt="Logo SIPUS" class="mx-auto w-20 h-20">
+    <h2 class="text-xl font-bold mt-2 text-blue-700">ADMIN SIPUS</h2>
+    <p class="text-sm text-gray-500">Survei Indeks Pelayanan Perpustakaan</p>
+  </div>
+  <input id="email" type="email" placeholder="Email" class="w-full mb-3 p-2 border rounded" />
+  <input id="password" type="password" placeholder="Password" class="w-full mb-3 p-2 border rounded" />
+  <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">Login</button>
+  <p id="loginError" class="text-red-500 text-sm mt-3 hidden">Login gagal. Coba lagi.</p>
+</div>
+
+<!-- DASHBOARD -->
+<div class="text-center mb-8 hidden" id="dashboardHeader">
+  <img src="Sipus.png" alt="Logo SIPUS" class="mx-auto mb-3 w-24 h-24">
+  <h1 class="text-3xl font-bold text-blue-700">ADMIN SIPUS</h1>
+  <p class="text-sm text-gray-600">Survei Indeks Pelayanan Perpustakaan</p>
+</div>
+
+<div id="adminSection" class="hidden max-w-6xl mx-auto mt-10 p-6 bg-white rounded-lg shadow space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-blue-700">Dashboard Sipus</h1>
+    <button id="logoutBtn" class="text-sm text-red-600 hover:underline">Logout</button>
+  </div>
+
+  <div class="flex justify-between items-center">
+    <h2 class="text-lg font-semibold text-gray-700">Rekapitulasi Rata-rata</h2>
+    <button onclick="downloadPDF()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Download PDF</button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white p-4 rounded shadow">
+      <h3 class="text-center font-semibold mb-2">Grafik Pie Rata-rata Kepuasan</h3>
+      <canvas id="rekapChartPie" height="250"></canvas>
+    </div>
+
+    <div class="overflow-x-auto bg-white p-4 rounded shadow">
+      <h3 class="font-semibold mb-2">Data Responden</h3>
+      <table class="min-w-full table-auto border text-sm">
+        <thead class="bg-blue-100">
+          <tr>
+            <th class="p-2 border">Tanggal</th>
+            <th class="p-2 border">Keramahan</th>
+            <th class="p-2 border">Fasilitas</th>
+            <th class="p-2 border">Koleksi</th>
+            <th class="p-2 border">Kebersihan</th>
+            <th class="p-2 border">Layanan</th>
+            <th class="p-2 border">Komentar</th>
+            <th class="p-2 border">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCI_FrDaO-FuMeJvQxvACKqLJrsHI_tHWg",
+    authDomain: "survei-pelayanan.firebaseapp.com",
+    databaseURL: "https://survei-pelayanan-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "survei-pelayanan",
+    storageBucket: "survei-pelayanan.appspot.com",
+    messagingSenderId: "147429967408",
+    appId: "1:147429967408:web:a00cc6db64b1125c778ff5"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  const loginSection = document.getElementById("loginSection");
+  const adminSection = document.getElementById("adminSection");
+  const dashboardHeader = document.getElementById("dashboardHeader");
+  const loginError = document.getElementById("loginError");
+
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        loginSection.classList.add("hidden");
+        adminSection.classList.remove("hidden");
+        dashboardHeader.classList.remove("hidden");
+        loadData();
+      })
+      .catch(() => loginError.classList.remove("hidden"));
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    auth.signOut().then(() => location.reload());
+  });
+
+  let pieChart;
+  function loadData() {
+    const tbody = document.getElementById("dataBody");
+    db.ref("respon_survei").once("value").then(snapshot => {
+      const data = snapshot.val();
+      tbody.innerHTML = "";
+      if (!data) return;
+
+      let total = [0, 0, 0, 0, 0];
+      let count = 0;
+
+      Object.entries(data).forEach(([id, item]) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="p-2 border">${new Date(item.waktu).toLocaleString()}</td>
+          <td class="p-2 border">${item.hasil?.keramahan ?? "-"}</td>
+          <td class="p-2 border">${item.hasil?.fasilitas ?? "-"}</td>
+          <td class="p-2 border">${item.hasil?.koleksi ?? "-"}</td>
+          <td class="p-2 border">${item.hasil?.kebersihan ?? "-"}</td>
+          <td class="p-2 border">${item.hasil?.layanan ?? "-"}</td>
+          <td class="p-2 border">${item.komentar || "-"}</td>
+          <td class="p-2 border text-center"><button onclick="hapusData('${id}')" class="text-red-600 text-sm hover:underline">Hapus</button></td>
+        `;
+        tbody.appendChild(row);
+
+        total[0] += item.hasil?.keramahan || 0;
+        total[1] += item.hasil?.fasilitas || 0;
+        total[2] += item.hasil?.koleksi || 0;
+        total[3] += item.hasil?.kebersihan || 0;
+        total[4] += item.hasil?.layanan || 0;
+        count++;
+      });
+
+      const rata = total.map(t => Math.round(t / count));
+      tampilkanChart(rata);
+    });
+  }
+
+  function tampilkanChart(data) {
+    const ctx = document.getElementById("rekapChartPie").getContext("2d");
+    if (pieChart) pieChart.destroy();
+    pieChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: ["Keramahan", "Fasilitas", "Koleksi", "Kebersihan", "Layanan"],
+        datasets: [{
+          data,
+          backgroundColor: ["#3B82F6", "#10B981", "#F59E0B", "#EC4899", "#6366F1"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+      }
+    });
+  }
+
+  function hapusData(id) {
+    if (confirm("Yakin ingin menghapus data ini?")) {
+      db.ref("respon_survei/" + id).remove().then(() => {
+        alert("Data berhasil dihapus.");
+        loadData();
+      });
+    }
+  }
+
+  function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("landscape");
+    doc.text("Rekap Survei Kepuasan", 14, 15);
+    const rows = Array.from(document.querySelectorAll("#dataBody tr")).map(tr =>
+      Array.from(tr.children).slice(0, 7).map(td => td.innerText));
+    const headers = [["Tanggal", "Keramahan", "Fasilitas", "Koleksi", "Kebersihan", "Layanan", "Komentar"]];
+    doc.autoTable({ head: headers, body: rows, startY: 20 });
+    doc.save("rekap-survei.pdf");
+  }
+</script>
+</body>
+</html>
