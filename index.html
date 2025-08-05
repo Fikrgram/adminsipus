@@ -42,18 +42,28 @@
   </div>
 
   <div class="flex justify-between items-center">
-    <h2 class="text-lg font-semibold text-gray-700">Rekapitulasi Rata-rata</h2>
+    <h2 class="text-lg font-semibold text-gray-700">Rekapitulasi kepuasan pengunjung berdasarkan survei yang telah diisi.</h2>
     <button onclick="downloadPDF()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Download PDF</button>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-white p-4 rounded shadow">
-      <h3 class="text-center font-semibold mb-2">Grafik Pie Rata-rata Kepuasan</h3>
+      <h3 class="text-center font-semibold mb-2">Grafik Rata-rata Kepuasan</h3>
       <canvas id="rekapChartPie" height="250"></canvas>
     </div>
 
     <div class="overflow-x-auto bg-white p-4 rounded shadow">
       <h3 class="font-semibold mb-2">Data Responden</h3>
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+  <div class="flex items-center gap-2">
+    <label for="filterDate" class="text-sm font-medium text-gray-600">Filter Tanggal:</label>
+    <input type="date" id="filterDate" class="border px-2 py-1 rounded" />
+  </div>
+  <div class="flex items-center gap-2">
+    <input type="text" id="searchKomentar" placeholder="Cari komentar..." class="border px-3 py-1 rounded w-64" />
+  </div>
+</div>
+
       <table class="min-w-full table-auto border text-sm">
         <thead class="bg-blue-100">
           <tr>
@@ -110,7 +120,11 @@
   });
 
   let pieChart;
-  function loadData() {
+  
+document.getElementById("filterDate").addEventListener("change", loadData);
+document.getElementById("searchKomentar").addEventListener("input", loadData);
+
+function loadData() {
     const tbody = document.getElementById("dataBody");
     db.ref("respon_survei").once("value").then(snapshot => {
       const data = snapshot.val();
@@ -120,7 +134,17 @@
       let total = [0, 0, 0, 0, 0];
       let count = 0;
 
+      
+      const filterDate = document.getElementById("filterDate").value;
+      const searchKomentar = document.getElementById("searchKomentar").value.toLowerCase();
+
       Object.entries(data).forEach(([id, item]) => {
+        const tanggal = new Date(item.waktu).toLocaleDateString("en-CA");
+        if ((filterDate && tanggal !== filterDate) || 
+            (searchKomentar && !(item.komentar || "").toLowerCase().includes(searchKomentar))) {
+          return;
+        }
+
         const row = document.createElement("tr");
         row.innerHTML = `
           <td class="p-2 border">${new Date(item.waktu).toLocaleString()}</td>
