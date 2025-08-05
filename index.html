@@ -1,88 +1,80 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ADMIN SIPUS (Survei Indeks Pelayanan Perpustakaan)</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ADMIN SIPUS (Survei Indeks Pelayanan Perpustakaan)</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800">
-
 <!-- LOGIN -->
-<div id="loginSection" class="max-w-md mx-auto mt-20 bg-white p-6 rounded-lg shadow">
-  <div class="text-center mb-4">
-    <img src="Sipus.png" alt="Logo SIPUS" class="mx-auto w-20 h-20">
-    <h2 class="text-xl font-bold mt-2 text-blue-700">ADMIN SIPUS</h2>
-    <p class="text-sm text-gray-500">Survei Indeks Pelayanan Perpustakaan</p>
-  </div>
-  <input id="email" type="email" placeholder="Email" class="w-full mb-3 p-2 border rounded" />
-  <input id="password" type="password" placeholder="Password" class="w-full mb-3 p-2 border rounded" />
-  <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">Login</button>
-  <p id="loginError" class="text-red-500 text-sm mt-3 hidden">Login gagal. Coba lagi.</p>
+<div class="max-w-md mx-auto mt-20 bg-white p-6 rounded-lg shadow" id="loginSection">
+<div class="text-center mb-4">
+<img alt="Logo SIPUS" class="mx-auto w-22 h-21" src="Sipus.png"/>
+<p class="text-sm text-gray-500">Admin Survei Indeks Pelayanan Perpustakaan</p>
 </div>
-
+<input class="w-full mb-3 p-2 border rounded" id="email" placeholder="Email" type="email"/>
+<input class="w-full mb-3 p-2 border rounded" id="password" placeholder="Password" type="password"/>
+<button class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700" id="loginBtn">Login</button>
+<p class="text-red-500 text-sm mt-3 hidden" id="loginError">Login gagal. Coba lagi.</p>
+</div>
 <!-- DASHBOARD -->
 <div class="text-center mb-8 hidden" id="dashboardHeader">
-  <img src="Sipus.png" alt="Logo SIPUS" class="mx-auto mb-3 w-24 h-24">
-  <h1 class="text-3xl font-bold text-blue-700">ADMIN SIPUS</h1>
-  <p class="text-sm text-gray-600">Survei Indeks Pelayanan Perpustakaan</p>
+<img alt="Logo SIPUS" class="mx-auto mb-3 w-24 h-24" src="Sipus.png"/>
+<h1 class="text-3xl font-bold text-blue-700">ADMIN SIPUS</h1>
+<p class="text-sm text-gray-600">Survei Indeks Pelayanan Perpustakaan</p>
 </div>
-
-<div id="adminSection" class="hidden max-w-6xl mx-auto mt-10 p-6 bg-white rounded-lg shadow space-y-6">
-  <div class="flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-blue-700">Dashboard Sipus</h1>
-    <button id="logoutBtn" class="text-sm text-red-600 hover:underline">Logout</button>
-  </div>
-
-  <div class="flex justify-between items-center">
-    <h2 class="text-lg font-semibold text-gray-700">Rekapitulasi kepuasan pengunjung berdasarkan survei yang telah diisi.</h2>
-    <button onclick="downloadPDF()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Download PDF</button>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white p-4 rounded shadow">
-      <h3 class="text-center font-semibold mb-2">Grafik Rata-rata Kepuasan</h3>
-      <canvas id="rekapChartPie" height="250"></canvas>
-    </div>
-
-    <div class="overflow-x-auto bg-white p-4 rounded shadow">
-      <h3 class="font-semibold mb-2">Data Responden</h3>
+<div class="hidden max-w-6xl mx-auto mt-10 p-6 bg-white rounded-lg shadow space-y-6" id="adminSection">
+<div class="flex justify-between items-center">
+<h1 class="text-2xl font-bold text-blue-700">Dashboard</h1>
+<button class="text-sm text-red-600 hover:underline" id="logoutBtn">Logout</button>
+</div>
+<div class="flex justify-between items-center">
+<h2 class="text-lg font-semibold text-gray-700">Rekapitulasi kepuasan pengunjung.</h2>
+<button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onclick="downloadPDF()">Download PDF</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-white p-4 rounded shadow">
+<h3 class="text-center font-semibold mb-2">Grafik Rata-rata Kepuasan</h3>
+<canvas height="250" id="rekapChartPie"></canvas>
+</div>
+<div class="overflow-x-auto bg-white p-4 rounded shadow">
+<h3 class="font-semibold mb-2">Data Responden</h3>
 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-  <div class="flex items-center gap-2">
-    <label for="filterDate" class="text-sm font-medium text-gray-600">Filter Tanggal:</label>
-    <input type="date" id="filterDate" class="border px-2 py-1 rounded" />
-  </div>
-  <div class="flex items-center gap-2">
-    <input type="text" id="searchKomentar" placeholder="Cari komentar..." class="border px-3 py-1 rounded w-64" />
-  </div>
+<div class="flex items-center gap-2">
+<label class="text-sm font-medium text-gray-600" for="filterDate">Filter Tanggal:</label>
+<input class="border px-2 py-1 rounded" id="filterDate" type="date"/>
 </div>
-
-      <table class="min-w-full table-auto border text-sm">
-        <thead class="bg-blue-100">
-          <tr>
-            <th class="p-2 border">Tanggal</th>
-            <th class="p-2 border">Keramahan</th>
-            <th class="p-2 border">Fasilitas</th>
-            <th class="p-2 border">Koleksi</th>
-            <th class="p-2 border">Kebersihan</th>
-            <th class="p-2 border">Layanan</th>
-            <th class="p-2 border">Komentar</th>
-            <th class="p-2 border">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="dataBody"></tbody>
-      </table>
-    </div>
-  </div>
+<div class="flex items-center gap-2">
+<input class="border px-3 py-1 rounded w-64" id="searchKomentar" placeholder="Cari komentar..." type="text"/>
 </div>
-
+</div>
+<table class="min-w-full table-auto border text-sm">
+<thead class="bg-blue-100">
+<tr>
+<th class="p-2 border">Tanggal</th>
+<th class="p-2 border">Keramahan</th>
+<th class="p-2 border">Fasilitas</th>
+<th class="p-2 border">Koleksi</th>
+<th class="p-2 border">Kebersihan</th>
+<th class="p-2 border">Layanan</th>
+<th class="p-2 border">Komentar</th>
+<th class="p-2 border">Aksi</th>
+</tr>
+</thead>
+<tbody id="dataBody"></tbody>
+</table>
+</div>
+</div>
+</div>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCI_FrDaO-FuMeJvQxvACKqLJrsHI_tHWg",
@@ -128,8 +120,10 @@ function loadData() {
     const tbody = document.getElementById("dataBody");
     db.ref("respon_survei").once("value").then(snapshot => {
       const data = snapshot.val();
-      tbody.innerHTML = "";
-      if (!data) return;
+      const spinner = document.getElementById("loadingSpinner");
+    spinner.classList.remove("hidden");
+    tbody.innerHTML = "";
+      if (!data) { spinner.classList.add("hidden"); return; }
 
       let total = [0, 0, 0, 0, 0];
       let count = 0;
@@ -148,6 +142,11 @@ function loadData() {
         const row = document.createElement("tr");
         row.innerHTML = `
           <td class="p-2 border">${new Date(item.waktu).toLocaleString()}</td>
+          <td class="p-2 border ${getKelasNilai(item.hasil?.keramahan)}">${item.hasil?.keramahan ?? "-"}</td>
+          <td class="p-2 border ${getKelasNilai(item.hasil?.fasilitas)}">${item.hasil?.fasilitas ?? "-"}</td>
+          <td class="p-2 border ${getKelasNilai(item.hasil?.koleksi)}">${item.hasil?.koleksi ?? "-"}</td>
+          <td class="p-2 border ${getKelasNilai(item.hasil?.kebersihan)}">${item.hasil?.kebersihan ?? "-"}</td>
+          <td class="p-2 border ${getKelasNilai(item.hasil?.layanan)}">${item.hasil?.layanan ?? "-"}</td>
           <td class="p-2 border">${item.hasil?.keramahan ?? "-"}</td>
           <td class="p-2 border">${item.hasil?.fasilitas ?? "-"}</td>
           <td class="p-2 border">${item.hasil?.koleksi ?? "-"}</td>
@@ -167,7 +166,8 @@ function loadData() {
       });
 
       const rata = total.map(t => Math.round(t / count));
-      tampilkanChart(rata);
+      if (count > 0) tampilkanChart(rata);
+    spinner.classList.add("hidden");
     });
   }
 
@@ -209,6 +209,99 @@ function loadData() {
     doc.autoTable({ head: headers, body: rows, startY: 20 });
     doc.save("rekap-survei.pdf");
   }
+</script>
+
+<!-- Perubahan fokus ke UX/UI saja, bukan logika utama -->
+<!-- Tambahan: Spinner saat loading -->
+<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
+<svg class="animate-spin h-10 w-10 text-blue-600" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
+</svg>
+</div>
+<!-- Tambahan: Warna status nilai -->
+<style>
+  .nilai-bagus { background-color: #D1FAE5; color: #065F46; font-weight: bold; }
+  .nilai-cukup { background-color: #FEF3C7; color: #92400E; font-weight: bold; }
+  .nilai-buruk { background-color: #FECACA; color: #991B1B; font-weight: bold; }
+</style>
+<script>
+function getKelasNilai(n) {
+  if (n >= 4) return "nilai-bagus";
+  if (n >= 2) return "nilai-cukup";
+  return "nilai-buruk";
+}
+</script>
+
+<!-- Perubahan fokus ke UX/UI saja, bukan logika utama -->
+<!-- Tambahan: Spinner saat loading -->
+<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
+<svg class="animate-spin h-10 w-10 text-blue-600" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
+</svg>
+</div>
+<!-- Tambahan: Warna status nilai -->
+<style>
+  .nilai-bagus { background-color: #D1FAE5; color: #065F46; font-weight: bold; }
+  .nilai-cukup { background-color: #FEF3C7; color: #92400E; font-weight: bold; }
+  .nilai-buruk { background-color: #FECACA; color: #991B1B; font-weight: bold; }
+  .wrap-komentar { white-space: pre-wrap; word-wrap: break-word; max-width: 300px; }
+  .kolom-aksi { min-width: 60px; text-align: center; }
+</style>
+<script>
+function getKelasNilai(n) {
+  if (n >= 4) return "nilai-bagus";
+  if (n >= 2) return "nilai-cukup";
+  return "nilai-buruk";
+}
+
+function loadData() {
+  const tbody = document.getElementById("dataBody");
+  const spinner = document.getElementById("loadingSpinner");
+  spinner.classList.remove("hidden");
+
+  db.ref("respon_survei").once("value").then(snapshot => {
+    const data = snapshot.val();
+    tbody.innerHTML = "";
+    if (!data) return;
+
+    let total = [0, 0, 0, 0, 0];
+    let count = 0;
+    const filterDate = document.getElementById("filterDate").value;
+    const searchKomentar = document.getElementById("searchKomentar").value.toLowerCase();
+
+    Object.entries(data).forEach(([id, item]) => {
+      const tanggal = new Date(item.waktu).toLocaleDateString("en-CA");
+      if ((filterDate && tanggal !== filterDate) || (searchKomentar && !(item.komentar || "").toLowerCase().includes(searchKomentar))) return;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="p-2 border">${new Date(item.waktu).toLocaleString()}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.keramahan)}">${item.hasil?.keramahan ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.fasilitas)}">${item.hasil?.fasilitas ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.koleksi)}">${item.hasil?.koleksi ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.kebersihan)}">${item.hasil?.kebersihan ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.layanan)}">${item.hasil?.layanan ?? "-"}</td>
+        <td class="p-2 border wrap-komentar">${item.komentar || "-"}</td>
+        <td class="p-2 border kolom-aksi">
+          <button onclick="hapusData('${id}')" class="text-red-600 text-sm hover:underline">Hapus</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+
+      total[0] += item.hasil?.keramahan || 0;
+      total[1] += item.hasil?.fasilitas || 0;
+      total[2] += item.hasil?.koleksi || 0;
+      total[3] += item.hasil?.kebersihan || 0;
+      total[4] += item.hasil?.layanan || 0;
+      count++;
+    });
+
+    if (count > 0) tampilkanChart(total.map(t => Math.round(t / count)));
+    spinner.classList.add("hidden");
+  });
+}
 </script>
 </body>
 </html>
