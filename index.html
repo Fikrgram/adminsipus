@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
@@ -13,60 +12,103 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #fff;
+  }
+  .glass-card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    animation: fadeIn 0.6s ease-out;
+  }
+  .btn-gradient {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  .btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+  }
+  table thead {
+    background: rgba(255,255,255,0.2);
+  }
+  table tbody tr:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .nilai-bagus { background-color: rgba(16,185,129,0.3); color: #d1fae5; font-weight: bold; }
+  .nilai-cukup { background-color: rgba(251,191,36,0.3); color: #fef3c7; font-weight: bold; }
+  .nilai-buruk { background-color: rgba(239,68,68,0.3); color: #fee2e2; font-weight: bold; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800 px-4 sm:px-6 lg:px-8">
-<!-- Page Loader -->
+<body class="px-4 sm:px-6 lg:px-8">
+
+<!-- Loader -->
 <div id="pageLoader" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-  <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+  <svg class="animate-spin h-10 w-10 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
   </svg>
 </div>
 
-<!-- LOGIN -->
-<div class="max-w-md mx-auto mt-20 bg-white p-6 rounded-lg shadow" id="loginSection">
+<!-- Login -->
+<div class="max-w-md mx-auto mt-20 p-6 glass-card" id="loginSection">
 <div class="text-center mb-4">
-<img alt="Logo SIPUS" class="mx-auto w-22 h-21" src="Sipus.png"/>
-<p class="text-sm text-gray-500">Admin Survei Indeks Pelayanan Perpustakaan</p>
+<img alt="Logo SIPUS" class="mx-auto w-24 h-24 rounded-full border border-white" src="Sipus.png"/>
+<p class="text-sm text-gray-200">Admin Survei Indeks Pelayanan Perpustakaan</p>
 </div>
-<input class="w-full mb-3 p-2 border rounded" id="email" placeholder="Email" type="email"/>
-<input class="w-full mb-3 p-2 border rounded" id="password" placeholder="Password" type="password"/>
-<button class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700" id="loginBtn">Login</button>
-<p class="text-red-500 text-sm mt-3 hidden" id="loginError">Login gagal. Coba lagi.</p>
+<input class="w-full mb-3 p-2 rounded text-gray-800" id="email" placeholder="Email" type="email"/>
+<input class="w-full mb-3 p-2 rounded text-gray-800" id="password" placeholder="Password" type="password"/>
+<button class="btn-gradient px-4 py-2 rounded w-full" id="loginBtn">Login</button>
+<p class="text-red-300 text-sm mt-3 hidden" id="loginError">Login gagal. Coba lagi.</p>
 </div>
-<!-- DASHBOARD -->
+
+<!-- Dashboard Header -->
 <div class="text-center mb-8 hidden" id="dashboardHeader">
-<img alt="Logo SIPUS" class="mx-auto mb-3 w-24 h-24" src="Sipus.png"/>
-<h1 class="text-3xl font-bold text-blue-700">ADMIN SIPUS</h1>
-<p class="text-sm text-gray-600">Survei Indeks Pelayanan Perpustakaan</p>
+<img alt="Logo SIPUS" class="mx-auto mb-3 w-24 h-24 rounded-full border border-white" src="Sipus.png"/>
+<h1 class="text-3xl font-bold">ADMIN SIPUS</h1>
+<p class="text-sm text-gray-200">Survei Indeks Pelayanan Perpustakaan</p>
 </div>
-<div class="container mx-auto mt-10 p-6 bg-white rounded-lg shadow space-y-6 hidden" id="adminSection">
+
+<!-- Admin Section -->
+<div class="container mx-auto mt-10 p-6 glass-card space-y-6 hidden" id="adminSection">
 <div class="flex justify-between items-center">
-<h1 class="text-2xl font-bold text-blue-700">Dashboard</h1>
-<button class="text-sm text-red-600 hover:underline" id="logoutBtn">Logout</button>
+<h1 class="text-2xl font-bold">Dashboard</h1>
+<button class="text-sm text-red-300 hover:underline" id="logoutBtn">Logout</button>
 </div>
 <div class="flex justify-between items-center">
-<h2 class="text-lg font-semibold text-gray-700">Rekapitulasi kepuasan pengunjung.</h2>
-<button class="bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto hover:bg-green-700" onclick="downloadPDF()">Download PDF</button>
+<h2 class="text-lg font-semibold">Rekapitulasi kepuasan pengunjung</h2>
+<button class="btn-gradient px-4 py-2 rounded" onclick="downloadPDF()">Download PDF</button>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="bg-white p-4 rounded shadow">
+<div class="p-4 glass-card">
 <h3 class="text-center font-semibold mb-2">Grafik Rata-rata Kepuasan</h3>
 <canvas height="250" id="rekapChartPie"></canvas>
 </div>
-<div class="overflow-x-auto bg-white p-4 rounded shadow">
+<div class="overflow-x-auto p-4 glass-card">
 <h3 class="font-semibold mb-2">Data Responden</h3>
 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
 <div class="flex items-center gap-2">
-<label class="text-sm font-medium text-gray-600" for="filterDate">Filter Tanggal:</label>
-<input class="border px-2 py-1 rounded" id="filterDate" type="date"/>
+<label class="text-sm font-medium" for="filterDate">Filter Tanggal:</label>
+<input class="px-2 py-1 rounded text-gray-800" id="filterDate" type="date"/>
 </div>
 <div class="flex items-center gap-2">
-<input class="border px-3 py-1 rounded w-full md:w-64" id="searchKomentar" placeholder="Cari komentar..." type="text"/>
+<input class="px-3 py-1 rounded w-full md:w-64 text-gray-800" id="searchKomentar" placeholder="Cari komentar..." type="text"/>
 </div>
 </div>
-<table class="min-w-full table-auto border text-sm">
-<thead class="bg-blue-100">
+<table class="min-w-full border text-sm rounded overflow-hidden">
+<thead>
 <tr>
 <th class="p-2 border">Tanggal</th>
 <th class="p-2 border">Keramahan</th>
@@ -80,8 +122,17 @@
 </thead>
 <tbody id="dataBody"></tbody>
 </table>
+<div id="pagination" class="flex justify-center items-center mt-4 gap-3"></div>
 </div>
 </div>
+</div>
+
+<!-- Spinner Loading Data -->
+<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
+<svg class="animate-spin h-10 w-10 text-purple-500" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
+</svg>
 </div>
 <script>
   const firebaseConfig = {
@@ -120,51 +171,36 @@
   });
 
   let pieChart;
-  
-document.getElementById("filterDate").addEventListener("change", loadData);
-document.getElementById("searchKomentar").addEventListener("input", loadData);
+  let allData = [];
+  let currentPage = 1;
+  const rowsPerPage = 10;
 
-function loadData() {
+  document.getElementById("filterDate").addEventListener("change", () => { currentPage = 1; loadData(); });
+  document.getElementById("searchKomentar").addEventListener("input", () => { currentPage = 1; loadData(); });
+
+  function loadData() {
     const tbody = document.getElementById("dataBody");
+    const spinner = document.getElementById("loadingSpinner");
+    spinner.classList.remove("hidden");
+
     db.ref("respon_survei").once("value").then(snapshot => {
       const data = snapshot.val();
-      const spinner = document.getElementById("loadingSpinner");
-    spinner.classList.remove("hidden");
-    tbody.innerHTML = "";
+      tbody.innerHTML = "";
       if (!data) { spinner.classList.add("hidden"); return; }
 
       let total = [0, 0, 0, 0, 0];
       let count = 0;
-
-      
       const filterDate = document.getElementById("filterDate").value;
       const searchKomentar = document.getElementById("searchKomentar").value.toLowerCase();
 
+      allData = [];
       Object.entries(data).forEach(([id, item]) => {
         const tanggal = new Date(item.waktu).toLocaleDateString("en-CA");
-        if ((filterDate && tanggal !== filterDate) || 
-            (searchKomentar && !(item.komentar || "").toLowerCase().includes(searchKomentar))) {
-          return;
-        }
+        if ((filterDate && tanggal !== filterDate) || (searchKomentar && !(item.komentar || "").toLowerCase().includes(searchKomentar))) return;
+        allData.push({ id, ...item });
+      });
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td class="p-2 border">${new Date(item.waktu).toLocaleString()}</td>
-          <td class="p-2 border ${getKelasNilai(item.hasil?.keramahan)}">${item.hasil?.keramahan ?? "-"}</td>
-          <td class="p-2 border ${getKelasNilai(item.hasil?.fasilitas)}">${item.hasil?.fasilitas ?? "-"}</td>
-          <td class="p-2 border ${getKelasNilai(item.hasil?.koleksi)}">${item.hasil?.koleksi ?? "-"}</td>
-          <td class="p-2 border ${getKelasNilai(item.hasil?.kebersihan)}">${item.hasil?.kebersihan ?? "-"}</td>
-          <td class="p-2 border ${getKelasNilai(item.hasil?.layanan)}">${item.hasil?.layanan ?? "-"}</td>
-          <td class="p-2 border">${item.hasil?.keramahan ?? "-"}</td>
-          <td class="p-2 border">${item.hasil?.fasilitas ?? "-"}</td>
-          <td class="p-2 border">${item.hasil?.koleksi ?? "-"}</td>
-          <td class="p-2 border">${item.hasil?.kebersihan ?? "-"}</td>
-          <td class="p-2 border">${item.hasil?.layanan ?? "-"}</td>
-          <td class="p-2 border">${item.komentar || "-"}</td>
-          <td class="p-2 border text-center"><button onclick="hapusData('${id}')" class="text-red-600 text-sm hover:underline">Hapus</button></td>
-        `;
-        tbody.appendChild(row);
-
+      allData.forEach(item => {
         total[0] += item.hasil?.keramahan || 0;
         total[1] += item.hasil?.fasilitas || 0;
         total[2] += item.hasil?.koleksi || 0;
@@ -173,10 +209,60 @@ function loadData() {
         count++;
       });
 
-      const rata = total.map(t => Math.round(t / count));
-      if (count > 0) tampilkanChart(rata);
-    spinner.classList.add("hidden");
+      if (count > 0) tampilkanChart(total.map(t => Math.round(t / count)));
+      renderTable();
+      spinner.classList.add("hidden");
     });
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("dataBody");
+    tbody.innerHTML = "";
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+    let pageData = allData.slice(start, end);
+
+    pageData.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="p-2 border">${new Date(item.waktu).toLocaleString()}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.keramahan)}">${item.hasil?.keramahan ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.fasilitas)}">${item.hasil?.fasilitas ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.koleksi)}">${item.hasil?.koleksi ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.kebersihan)}">${item.hasil?.kebersihan ?? "-"}</td>
+        <td class="p-2 border ${getKelasNilai(item.hasil?.layanan)}">${item.hasil?.layanan ?? "-"}</td>
+        <td class="p-2 border wrap-komentar">${item.komentar || "-"}</td>
+        <td class="p-2 border kolom-aksi">
+          <button onclick="hapusData('${item.id}')" class="text-red-600 text-sm hover:underline">Hapus</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = `
+      <button ${currentPage === 1 ? "disabled" : ""} class="pagination-btn" onclick="prevPage()">Sebelumnya</button>
+      <span class="text-sm font-medium">Halaman ${currentPage} dari ${Math.ceil(allData.length / rowsPerPage) || 1}</span>
+      <button ${currentPage >= Math.ceil(allData.length / rowsPerPage) ? "disabled" : ""} class="pagination-btn" onclick="nextPage()">Selanjutnya</button>
+    `;
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTable();
+    }
+  }
+
+  function nextPage() {
+    if (currentPage < Math.ceil(allData.length / rowsPerPage)) {
+      currentPage++;
+      renderTable();
+    }
   }
 
   function tampilkanChart(data) {
@@ -186,15 +272,9 @@ function loadData() {
       type: "pie",
       data: {
         labels: ["Keramahan", "Fasilitas", "Koleksi", "Kebersihan", "Layanan"],
-        datasets: [{
-          data,
-          backgroundColor: ["#3B82F6", "#10B981", "#F59E0B", "#EC4899", "#6366F1"]
-        }]
+        datasets: [{ data, backgroundColor: ["#3B82F6", "#10B981", "#F59E0B", "#EC4899", "#6366F1"] }]
       },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom' } }
-      }
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
     });
   }
 
@@ -217,116 +297,13 @@ function loadData() {
     doc.autoTable({ head: headers, body: rows, startY: 20 });
     doc.save("rekap-survei.pdf");
   }
-</script>
 
-<!-- Perubahan fokus ke UX/UI saja, bukan logika utama -->
-<!-- Tambahan: Spinner saat loading -->
-<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
-<svg class="animate-spin h-10 w-10 text-blue-600" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
-</svg>
-</div>
-<!-- Tambahan: Warna status nilai -->
-<style>
-  .nilai-bagus { background-color: #D1FAE5; color: #065F46; font-weight: bold; }
-  .nilai-cukup { background-color: #FEF3C7; color: #92400E; font-weight: bold; }
-  .nilai-buruk { background-color: #FECACA; color: #991B1B; font-weight: bold; }
-
-@media (max-width: 640px) {
-  .wrap-komentar {
-    max-width: 100%;
+  function getKelasNilai(n) {
+    if (n >= 4) return "nilai-bagus";
+    if (n >= 2) return "nilai-cukup";
+    return "nilai-buruk";
   }
-}
 
-</style>
-<script>
-function getKelasNilai(n) {
-  if (n >= 4) return "nilai-bagus";
-  if (n >= 2) return "nilai-cukup";
-  return "nilai-buruk";
-}
-</script>
-
-<!-- Perubahan fokus ke UX/UI saja, bukan logika utama -->
-<!-- Tambahan: Spinner saat loading -->
-<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
-<svg class="animate-spin h-10 w-10 text-blue-600" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
-</svg>
-</div>
-<!-- Tambahan: Warna status nilai -->
-<style>
-  .nilai-bagus { background-color: #D1FAE5; color: #065F46; font-weight: bold; }
-  .nilai-cukup { background-color: #FEF3C7; color: #92400E; font-weight: bold; }
-  .nilai-buruk { background-color: #FECACA; color: #991B1B; font-weight: bold; }
-  .wrap-komentar { white-space: pre-wrap; word-wrap: break-word; max-width: 300px; }
-  .kolom-aksi { min-width: 60px; text-align: center; }
-
-@media (max-width: 640px) {
-  .wrap-komentar {
-    max-width: 100%;
-  }
-}
-
-</style>
-<script>
-function getKelasNilai(n) {
-  if (n >= 4) return "nilai-bagus";
-  if (n >= 2) return "nilai-cukup";
-  return "nilai-buruk";
-}
-
-function loadData() {
-  const tbody = document.getElementById("dataBody");
-  const spinner = document.getElementById("loadingSpinner");
-  spinner.classList.remove("hidden");
-
-  db.ref("respon_survei").once("value").then(snapshot => {
-    const data = snapshot.val();
-    tbody.innerHTML = "";
-    if (!data) return;
-
-    let total = [0, 0, 0, 0, 0];
-    let count = 0;
-    const filterDate = document.getElementById("filterDate").value;
-    const searchKomentar = document.getElementById("searchKomentar").value.toLowerCase();
-
-    Object.entries(data).forEach(([id, item]) => {
-      const tanggal = new Date(item.waktu).toLocaleDateString("en-CA");
-      if ((filterDate && tanggal !== filterDate) || (searchKomentar && !(item.komentar || "").toLowerCase().includes(searchKomentar))) return;
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="p-2 border">${new Date(item.waktu).toLocaleString()}</td>
-        <td class="p-2 border ${getKelasNilai(item.hasil?.keramahan)}">${item.hasil?.keramahan ?? "-"}</td>
-        <td class="p-2 border ${getKelasNilai(item.hasil?.fasilitas)}">${item.hasil?.fasilitas ?? "-"}</td>
-        <td class="p-2 border ${getKelasNilai(item.hasil?.koleksi)}">${item.hasil?.koleksi ?? "-"}</td>
-        <td class="p-2 border ${getKelasNilai(item.hasil?.kebersihan)}">${item.hasil?.kebersihan ?? "-"}</td>
-        <td class="p-2 border ${getKelasNilai(item.hasil?.layanan)}">${item.hasil?.layanan ?? "-"}</td>
-        <td class="p-2 border wrap-komentar">${item.komentar || "-"}</td>
-        <td class="p-2 border kolom-aksi">
-          <button onclick="hapusData('${id}')" class="text-red-600 text-sm hover:underline">Hapus</button>
-        </td>
-      `;
-      tbody.appendChild(row);
-
-      total[0] += item.hasil?.keramahan || 0;
-      total[1] += item.hasil?.fasilitas || 0;
-      total[2] += item.hasil?.koleksi || 0;
-      total[3] += item.hasil?.kebersihan || 0;
-      total[4] += item.hasil?.layanan || 0;
-      count++;
-    });
-
-    if (count > 0) tampilkanChart(total.map(t => Math.round(t / count)));
-    spinner.classList.add("hidden");
-  });
-}
-</script>
-
-<script>
   window.addEventListener("load", () => {
     setTimeout(() => {
       const loader = document.getElementById("pageLoader");
@@ -334,6 +311,14 @@ function loadData() {
     }, 1200);
   });
 </script>
+
+<!-- Spinner Loading Data -->
+<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
+<svg class="animate-spin h-10 w-10 text-blue-600" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
+</svg>
+</div>
 
 </body>
 </html>
