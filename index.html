@@ -50,11 +50,70 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  .wrap-komentar {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: 180px;
+  }
+  table {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  table th, table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+  .dropdown-select {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    color: white;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .dropdown-select:hover {
+    background: rgba(255,255,255,0.25);
+  }
+  .dropdown-select option {
+    background: #4c1d95;
+    color: white;
+  }
+
+  /* Scroll horizontal untuk mobile */
+  .overflow-x-auto {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+  }
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+  }
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+  }
 </style>
 </head>
 <body class="px-4 sm:px-6 lg:px-8">
 
-<!-- Loader -->
+<!-- Loader Halaman -->
 <div id="pageLoader" class="fixed inset-0 bg-white flex items-center justify-center z-50">
   <svg class="animate-spin h-10 w-10 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -64,77 +123,112 @@
 
 <!-- Login -->
 <div class="max-w-md mx-auto mt-20 p-6 glass-card" id="loginSection">
-<div class="text-center mb-4">
-<img alt="Logo SIPUS" class="mx-auto w-24 h-24 rounded-full border border-white" src="Sipus.png"/>
-<p class="text-sm text-gray-200">Admin Survei Indeks Pelayanan Perpustakaan</p>
-</div>
-<input class="w-full mb-3 p-2 rounded text-gray-800" id="email" placeholder="Email" type="email"/>
-<input class="w-full mb-3 p-2 rounded text-gray-800" id="password" placeholder="Password" type="password"/>
-<button class="btn-gradient px-4 py-2 rounded w-full" id="loginBtn">Login</button>
-<p class="text-red-300 text-sm mt-3 hidden" id="loginError">Login gagal. Coba lagi.</p>
+  <div class="text-center mb-4">
+    <img alt="Logo SIPUS" class="mx-auto w-24 h-24 rounded-full border border-white" src="Sipus.png"/>
+    <p class="text-sm text-gray-200">Admin Survei Indeks Pelayanan Perpustakaan</p>
+  </div>
+  <input class="w-full mb-3 p-2 rounded text-gray-800" id="email" placeholder="Email" type="email"/>
+  <input class="w-full mb-3 p-2 rounded text-gray-800" id="password" placeholder="Password" type="password"/>
+  <button class="btn-gradient px-4 py-2 rounded w-full" id="loginBtn">Login</button>
+  <p class="text-red-300 text-sm mt-3 hidden" id="loginError">Login gagal. Coba lagi.</p>
 </div>
 
 <!-- Dashboard Header -->
 <div class="text-center mb-8 hidden" id="dashboardHeader">
-<img alt="Logo SIPUS" class="mx-auto mb-3 w-24 h-24 rounded-full border border-white" src="Sipus.png"/>
-<h1 class="text-3xl font-bold">ADMIN SIPUS</h1>
-<p class="text-sm text-gray-200">Survei Indeks Pelayanan Perpustakaan</p>
+  <img alt="Logo SIPUS" class="mx-auto mb-3 w-24 h-24 rounded-full border border-white" src="Sipus.png"/>
+  <h1 class="text-3xl font-bold">ADMIN SIPUS</h1>
+  <p class="text-sm text-gray-200">Survei Indeks Pelayanan Perpustakaan</p>
 </div>
 
 <!-- Admin Section -->
 <div class="container mx-auto mt-10 p-6 glass-card space-y-6 hidden" id="adminSection">
-<div class="flex justify-between items-center">
-<h1 class="text-2xl font-bold">Dashboard</h1>
-<button class="text-sm text-red-300 hover:underline" id="logoutBtn">Logout</button>
-</div>
-<div class="flex justify-between items-center">
-<h2 class="text-lg font-semibold">Rekapitulasi kepuasan pengunjung</h2>
-<button class="btn-gradient px-4 py-2 rounded" onclick="downloadPDF()">Download PDF</button>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="p-4 glass-card">
-<h3 class="text-center font-semibold mb-2">Grafik Rata-rata Kepuasan</h3>
-<canvas height="250" id="rekapChartPie"></canvas>
-</div>
-<div class="overflow-x-auto p-4 glass-card">
-<h3 class="font-semibold mb-2">Data Responden</h3>
-<div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-<div class="flex items-center gap-2">
-<label class="text-sm font-medium" for="filterDate">Filter Tanggal:</label>
-<input class="px-2 py-1 rounded text-gray-800" id="filterDate" type="date"/>
-</div>
-<div class="flex items-center gap-2">
-<input class="px-3 py-1 rounded w-full md:w-64 text-gray-800" id="searchKomentar" placeholder="Cari komentar..." type="text"/>
-</div>
-</div>
-<table class="min-w-full border text-sm rounded overflow-hidden">
-<thead>
-<tr>
-<th class="p-2 border">Tanggal</th>
-<th class="p-2 border">Keramahan</th>
-<th class="p-2 border">Fasilitas</th>
-<th class="p-2 border">Koleksi</th>
-<th class="p-2 border">Kebersihan</th>
-<th class="p-2 border">Layanan</th>
-<th class="p-2 border">Komentar</th>
-<th class="p-2 border">Aksi</th>
-</tr>
-</thead>
-<tbody id="dataBody"></tbody>
-</table>
-<div id="pagination" class="flex justify-center items-center mt-4 gap-3"></div>
-</div>
-</div>
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Dashboard</h1>
+    <button class="text-sm text-red-300 hover:underline" id="logoutBtn">Logout</button>
+  </div>
+  <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3">
+    <h2 class="text-lg font-semibold">Rekapitulasi kepuasan pengunjung</h2>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="dropdown-container">
+        <select class="dropdown-select" id="downloadPeriod">
+          <option value="all">Semua Data</option>
+          <option value="week">1 Minggu Terakhir</option>
+          <option value="month">1 Bulan Terakhir</option>
+        </select>
+      </div>
+      <button class="btn-gradient px-4 py-2 rounded" onclick="downloadPDF()">Download PDF</button>
+      <button class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-white font-semibold" onclick="clearAllData()">Clear All Data</button>
+      <button onclick="openPdfModal('manual-book.pdf')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white font-semibold">
+        📚 Manual Book
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+    <!-- Grafik -->
+    <div class="p-4 glass-card overflow-hidden">
+      <h3 class="text-center font-semibold mb-2">Grafik Rata-rata Kepuasan</h3>
+      <canvas height="250" id="rekapChartPie"></canvas>
+    </div>
+
+    <!-- Tabel Data -->
+    <div class="p-4 glass-card overflow-hidden">
+      <h3 class="font-semibold mb-2">Data Responden</h3>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium" for="filterDate">Filter Tanggal:</label>
+          <input class="px-2 py-1 rounded text-gray-800" id="filterDate" type="date"/>
+        </div>
+        <div class="flex items-center gap-2">
+          <input class="px-3 py-1 rounded w-full md:w-64 text-gray-800" id="searchKomentar" placeholder="Cari komentar..." type="text"/>
+        </div>
+      </div>
+
+      <!-- Tabel dengan scroll horizontal -->
+      <div class="w-full overflow-x-auto">
+        <table class="min-w-full border text-sm rounded table-fixed">
+          <thead>
+            <tr>
+              <th class="p-2 border w-24">Tanggal</th>
+              <th class="p-2 border w-16">Keramahan</th>
+              <th class="p-2 border w-16">Fasilitas</th>
+              <th class="p-2 border w-16">Koleksi</th>
+              <th class="p-2 border w-16">Kebersihan</th>
+              <th class="p-2 border w-16">Layanan</th>
+              <th class="p-2 border w-40">Komentar</th>
+              <th class="p-2 border w-16">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </div>
+
+      <div id="pagination" class="flex justify-center items-center mt-4 gap-3"></div>
+    </div>
+  </div>
 </div>
 
-<!-- Spinner Loading Data -->
-<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
-<svg class="animate-spin h-10 w-10 text-purple-500" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
-</svg>
+<!-- Modal PDF Manual Book -->
+<div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="w-11/12 h-5/6 bg-white rounded-lg overflow-hidden">
+    <div class="flex justify-between items-center bg-gray-800 text-white p-2">
+      <span>📘 Manual Book</span>
+      <button onclick="closePdfModal()" class="text-2xl hover:text-red-300">&times;</button>
+    </div>
+    <iframe id="pdfFrame" class="w-full h-full" src="" type="application/pdf"></iframe>
+  </div>
 </div>
+
+<!-- Spinner Loading -->
+<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
+  <svg class="animate-spin h-10 w-10 text-purple-500" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
+  </svg>
+</div>
+
 <script>
+  // Konfigurasi Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCI_FrDaO-FuMeJvQxvACKqLJrsHI_tHWg",
     authDomain: "survei-pelayanan.firebaseapp.com",
@@ -148,11 +242,13 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
+  // Elemen DOM
   const loginSection = document.getElementById("loginSection");
   const adminSection = document.getElementById("adminSection");
   const dashboardHeader = document.getElementById("dashboardHeader");
   const loginError = document.getElementById("loginError");
 
+  // Login
   document.getElementById("loginBtn").addEventListener("click", () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -166,18 +262,22 @@
       .catch(() => loginError.classList.remove("hidden"));
   });
 
+  // Logout
   document.getElementById("logoutBtn").addEventListener("click", () => {
     auth.signOut().then(() => location.reload());
   });
 
+  // Variabel global
   let pieChart;
   let allData = [];
   let currentPage = 1;
   const rowsPerPage = 10;
 
+  // Event filter
   document.getElementById("filterDate").addEventListener("change", () => { currentPage = 1; loadData(); });
   document.getElementById("searchKomentar").addEventListener("input", () => { currentPage = 1; loadData(); });
 
+  // Load data dari Firebase
   function loadData() {
     const tbody = document.getElementById("dataBody");
     const spinner = document.getElementById("loadingSpinner");
@@ -212,15 +312,19 @@
       if (count > 0) tampilkanChart(total.map(t => Math.round(t / count)));
       renderTable();
       spinner.classList.add("hidden");
+    }).catch(() => {
+      spinner.classList.add("hidden");
+      alert("Gagal memuat data dari server.");
     });
   }
 
+  // Render tabel
   function renderTable() {
     const tbody = document.getElementById("dataBody");
     tbody.innerHTML = "";
-    let start = (currentPage - 1) * rowsPerPage;
-    let end = start + rowsPerPage;
-    let pageData = allData.slice(start, end);
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageData = allData.slice(start, end);
 
     pageData.forEach(item => {
       const row = document.createElement("tr");
@@ -232,9 +336,7 @@
         <td class="p-2 border ${getKelasNilai(item.hasil?.kebersihan)}">${item.hasil?.kebersihan ?? "-"}</td>
         <td class="p-2 border ${getKelasNilai(item.hasil?.layanan)}">${item.hasil?.layanan ?? "-"}</td>
         <td class="p-2 border wrap-komentar">${item.komentar || "-"}</td>
-        <td class="p-2 border kolom-aksi">
-          <button onclick="hapusData('${item.id}')" class="text-red-600 text-sm hover:underline">Hapus</button>
-        </td>
+        <td class="p-2 border"><button onclick="hapusData('${item.id}')" class="text-red-600 text-sm hover:underline">Hapus</button></td>
       `;
       tbody.appendChild(row);
     });
@@ -244,26 +346,16 @@
 
   function renderPagination() {
     const pagination = document.getElementById("pagination");
+    const totalPages = Math.ceil(allData.length / rowsPerPage) || 1;
     pagination.innerHTML = `
-      <button ${currentPage === 1 ? "disabled" : ""} class="pagination-btn" onclick="prevPage()">Sebelumnya</button>
-      <span class="text-sm font-medium">Halaman ${currentPage} dari ${Math.ceil(allData.length / rowsPerPage) || 1}</span>
-      <button ${currentPage >= Math.ceil(allData.length / rowsPerPage) ? "disabled" : ""} class="pagination-btn" onclick="nextPage()">Selanjutnya</button>
+      <button ${currentPage === 1 ? "disabled" : ""} class="px-3 py-1 bg-gray-600 text-white rounded opacity-50 hover:opacity-75" onclick="prevPage()">Sebelumnya</button>
+      <span class="text-sm font-medium">Halaman ${currentPage} dari ${totalPages}</span>
+      <button ${currentPage >= totalPages ? "disabled" : ""} class="px-3 py-1 bg-gray-600 text-white rounded opacity-50 hover:opacity-75" onclick="nextPage()">Selanjutnya</button>
     `;
   }
 
-  function prevPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      renderTable();
-    }
-  }
-
-  function nextPage() {
-    if (currentPage < Math.ceil(allData.length / rowsPerPage)) {
-      currentPage++;
-      renderTable();
-    }
-  }
+  function prevPage() { if (currentPage > 1) { currentPage--; renderTable(); } }
+  function nextPage() { if (currentPage < Math.ceil(allData.length / rowsPerPage)) { currentPage++; renderTable(); } }
 
   function tampilkanChart(data) {
     const ctx = document.getElementById("rekapChartPie").getContext("2d");
@@ -287,15 +379,126 @@
     }
   }
 
+  function clearAllData() {
+    if (confirm("Yakin ingin menghapus SEMUA data?")) {
+      if (confirm("Data tidak bisa dikembalikan. Yakin tetap hapus semua?")) {
+        db.ref("respon_survei").remove().then(() => {
+          alert("Semua data berhasil dihapus.");
+          loadData();
+        });
+      }
+    }
+  }
+
+  function filterDataByPeriod(data, period) {
+    if (period === 'all') return data;
+
+    const now = new Date();
+    let startDate;
+
+    if (period === 'week') {
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else if (period === 'month') {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    }
+
+    return data.filter(item => new Date(item.waktu) >= startDate && new Date(item.waktu) <= now);
+  }
+
   function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("landscape");
-    doc.text("Rekap Survei Kepuasan", 14, 15);
-    const rows = Array.from(document.querySelectorAll("#dataBody tr")).map(tr =>
-      Array.from(tr.children).slice(0, 7).map(td => td.innerText));
-    const headers = [["Tanggal", "Keramahan", "Fasilitas", "Koleksi", "Kebersihan", "Layanan", "Komentar"]];
-    doc.autoTable({ head: headers, body: rows, startY: 20 });
-    doc.save("rekap-survei.pdf");
+    const selectedPeriod = document.getElementById("downloadPeriod").value;
+    const spinner = document.getElementById("loadingSpinner");
+    spinner.classList.remove("hidden");
+
+    db.ref("respon_survei").once("value").then(snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        alert("Tidak ada data untuk didownload.");
+        return;
+      }
+
+      let allDataForPDF = Object.entries(data).map(([id, item]) => ({ id, ...item }));
+      const filteredData = filterDataByPeriod(allDataForPDF, selectedPeriod);
+
+      if (filteredData.length === 0) {
+        alert("Tidak ada data dalam rentang waktu yang dipilih.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF("landscape");
+      let title = "Rekap Survei Kepuasan";
+      if (selectedPeriod === 'week') title += " - 1 Minggu Terakhir";
+      else if (selectedPeriod === 'month') title += " - 1 Bulan Terakhir";
+      else title += " - Semua Data";
+
+      doc.setFontSize(16);
+      doc.text(title, 14, 15);
+      doc.setFontSize(10);
+      doc.text(`Digenerate pada: ${new Date().toLocaleString('id-ID')}`, 14, 25);
+      doc.text(`Total data: ${filteredData.length} responden`, 14, 30);
+
+      const rows = filteredData.map(item => [
+        new Date(item.waktu).toLocaleString('id-ID'),
+        item.hasil?.keramahan ?? "-",
+        item.hasil?.fasilitas ?? "-",
+        item.hasil?.koleksi ?? "-",
+        item.hasil?.kebersihan ?? "-",
+        item.hasil?.layanan ?? "-",
+        item.komentar || "-"
+      ]);
+
+      const headers = [["Tanggal", "Keramahan", "Fasilitas", "Koleksi", "Kebersihan", "Layanan", "Komentar"]];
+      doc.autoTable({ 
+        head: headers, 
+        body: rows, 
+        startY: 35,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [102, 126, 234], textColor: 255 },
+        columnStyles: {
+          0: { cellWidth: 35 }, 1: { cellWidth: 20, halign: 'center' },
+          2: { cellWidth: 20, halign: 'center' }, 3: { cellWidth: 20, halign: 'center' },
+          4: { cellWidth: 20, halign: 'center' }, 5: { cellWidth: 20, halign: 'center' },
+          6: { cellWidth: 135 }
+        }
+      });
+
+      if (filteredData.length > 0) {
+        let total = [0, 0, 0, 0, 0], count = 0;
+        filteredData.forEach(item => {
+          if (item.hasil) {
+            total[0] += item.hasil.keramahan || 0;
+            total[1] += item.hasil.fasilitas || 0;
+            total[2] += item.hasil.koleksi || 0;
+            total[3] += item.hasil.kebersihan || 0;
+            total[4] += item.hasil.layanan || 0;
+            count++;
+          }
+        });
+
+        if (count > 0) {
+          const avg = total.map(t => (t / count).toFixed(2));
+          const finalY = doc.lastAutoTable.finalY || 35;
+          doc.setFontSize(12);
+          doc.text("Rata-rata Kepuasan:", 14, finalY + 15);
+          doc.setFontSize(10);
+          doc.text(`Keramahan: ${avg[0]} | Fasilitas: ${avg[1]} | Koleksi: ${avg[2]} | Kebersihan: ${avg[3]} | Layanan: ${avg[4]}`, 14, finalY + 22);
+        }
+      }
+
+      let fileName = "rekap-survei";
+      if (selectedPeriod === 'week') fileName += "-1-minggu";
+      else if (selectedPeriod === 'month') fileName += "-1-bulan";
+      else fileName += "-semua-data";
+      fileName += ".pdf";
+
+      doc.save(fileName);
+    }).catch(error => {
+      console.error("Error:", error);
+      alert("Terjadi kesalahan saat mendownload PDF.");
+    }).finally(() => {
+      spinner.classList.add("hidden");
+    });
   }
 
   function getKelasNilai(n) {
@@ -304,6 +507,18 @@
     return "nilai-buruk";
   }
 
+  // Fungsi Modal PDF
+  function openPdfModal(pdfUrl) {
+    document.getElementById("pdfModal").classList.remove("hidden");
+    document.getElementById("pdfFrame").src = pdfUrl;
+  }
+
+  function closePdfModal() {
+    document.getElementById("pdfModal").classList.add("hidden");
+    document.getElementById("pdfFrame").src = "";
+  }
+
+  // Hilangkan loader utama
   window.addEventListener("load", () => {
     setTimeout(() => {
       const loader = document.getElementById("pageLoader");
@@ -311,14 +526,6 @@
     }, 1200);
   });
 </script>
-
-<!-- Spinner Loading Data -->
-<div class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingSpinner">
-<svg class="animate-spin h-10 w-10 text-blue-600" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-<path class="opacity-75" d="M4 12a8 8 0 018-8v8z" fill="currentColor"></path>
-</svg>
-</div>
 
 </body>
 </html>
